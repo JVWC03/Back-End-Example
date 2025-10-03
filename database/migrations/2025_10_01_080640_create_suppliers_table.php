@@ -16,8 +16,16 @@ return new class extends Migration
             $table->string('name');
             $table->string('address');
             $table->string('phone');
-            $table->string('email')->unique();
+            $table->string('email');
             $table->timestamps();
+        });
+
+        Schema::table('products', function (Blueprint $table) {
+            // First, add the supplier_id column
+            $table->unsignedBigInteger('supplier_id')->nullable();
+
+            // Then, add the foreign key constraint
+            $table->foreign('supplier_id')->references('id')->on('suppliers')->onUpdate('restrict')->onDelete('restrict');
         });
     }
 
@@ -26,6 +34,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropForeign(['supplier_id']);
+            $table->dropColumn('supplier_id');
+        });
         Schema::dropIfExists('suppliers');
     }
 };

@@ -17,4 +17,12 @@ class Product extends Model
     protected $fillable = [
         'name','description','price',
     ];
+
+    /**
+     * Get the supplier that owns the product.
+     */
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
 }

@@ -1,0 +1,60 @@
+services:
+  db:
+    image: mysql:5.7
+    container_name: ${DB_HOST}
+    environment:
+      MYSQL_ROOT_PASSWORD: nosecret
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - devnet
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: ${DB_HOST}
+      PMA_USER: ${DB_USERNAME}
+      PMA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8081:80"
+    networks:
+      - devnet
+    depends_on:
+      - ${DB_HOST}
+
+  webapp:
+    build: ./docker/apache-php
+    container_name: webapp
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - devnet
+    depends_on:
+      - ${DB_HOST}
+
+  workspace:
+    build: ./docker/workspace
+    container_name: workspace
+    ports:
+      - "5173:5173"   # Expose Vite dev server port
+    tty: true         # Enables an interactive terminal
+    stdin_open: true  # Keeps standard input open for 'docker exec'
+    env_file:
+      - .env
+    volumes:
+      - .:/var/www/html
+    networks:
+      - devnet
+
+networks:
+  devnet:
+    driver: bridge
