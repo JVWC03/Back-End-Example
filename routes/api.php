@@ -21,3 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', ProductController::class);
     Route::apiResource('suppliers', SupplierController::class);
 });
+
+Route::put('/contacts/{contact}', function () {
+    // update a contact
+})->middleware('can:update-contact', 'contact');
